@@ -1,0 +1,215 @@
+package com.mycompany.hotelsystem;
+
+import java.util.*;
+
+class Guest {
+    int id;
+    String name;
+
+    Guest(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+class Room {
+    int roomNo;
+    String type;
+    double price;
+    boolean isBooked;
+
+    Room(int roomNo, String type, double price) {
+        this.roomNo = roomNo;
+        this.type = type;
+        this.price = price;
+        this.isBooked = false;
+    }
+}
+
+class Booking {
+    int bookingId;
+    Guest guest;
+    Room room;
+    int days;
+
+    Booking(int bookingId, Guest guest, Room room, int days) {
+        this.bookingId = bookingId;
+        this.guest = guest;
+        this.room = room;
+        this.days = days;
+    }
+
+    double calculateBill() {
+        return room.price * days;
+    }
+}
+
+class Hotel {
+    List<Room> rooms = new ArrayList<>();
+    List<Guest> guests = new ArrayList<>();
+    List<Booking> bookings = new ArrayList<>();
+
+    void addRoom(int roomNo, String type, double price) {
+        rooms.add(new Room(roomNo, type, price));
+    }
+
+    void addGuest(int id, String name) {
+        guests.add(new Guest(id, name));
+    }
+
+    Guest findGuest(int id) {
+        for (Guest g : guests) {
+            if (g.id == id) return g;
+        }
+        return null;
+    }
+
+    Room findRoom(int roomNo) {
+        for (Room r : rooms) {
+            if (r.roomNo == roomNo) return r;
+        }
+        return null;
+    }
+
+    void bookRoom(int guestId, int roomNo, int days) {
+        Guest g = findGuest(guestId);
+        Room r = findRoom(roomNo);
+
+        if (g != null && r != null && !r.isBooked) {
+            r.isBooked = true;
+            Booking b = new Booking(bookings.size() + 1, g, r, days);
+            bookings.add(b);
+            System.out.println("✅ Room booked successfully!");
+        } else {
+            System.out.println("❌ Booking failed!");
+        }
+    }
+
+    void checkout(int bookingId) {
+        for (Booking b : bookings) {
+            if (b.bookingId == bookingId) {
+                b.room.isBooked = false;
+                System.out.println("💰 Total Bill: ₹" + b.calculateBill());
+                return;
+            }
+        }
+        System.out.println("❌ Booking not found!");
+    }
+
+    void cancelBooking(int bookingId) {
+        Iterator<Booking> it = bookings.iterator();
+        while (it.hasNext()) {
+            Booking b = it.next();
+            if (b.bookingId == bookingId) {
+                b.room.isBooked = false;
+                it.remove();
+                System.out.println("❌ Booking cancelled!");
+                return;
+            }
+        }
+        System.out.println("❌ Booking not found!");
+    }
+
+    void showRooms() {
+        for (Room r : rooms) {
+            System.out.println(r.roomNo + " | " + r.type + " | ₹" + r.price +
+                    " | " + (r.isBooked ? "Booked" : "Available"));
+        }
+    }
+
+    void showGuests() {
+        for (Guest g : guests) {
+            System.out.println(g.id + " - " + g.name);
+        }
+    }
+
+    void showBookings() {
+        for (Booking b : bookings) {
+            System.out.println("ID: " + b.bookingId +
+                    " | Guest: " + b.guest.name +
+                    " | Room: " + b.room.roomNo +
+                    " | Days: " + b.days);
+        }
+    }
+}
+
+public class HotelSystem {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        Hotel hotel = new Hotel();
+
+        // Sample Rooms
+        hotel.addRoom(101, "Standard", 1000);
+        hotel.addRoom(102, "Deluxe", 2000);
+        hotel.addRoom(103, "Suite", 3000);
+
+        while (true) {
+            System.out.println("\n===== HOTEL SYSTEM =====");
+            System.out.println("1. Add Guest");
+            System.out.println("2. View Guests");
+            System.out.println("3. View Rooms");
+            System.out.println("4. Book Room");
+            System.out.println("5. View Bookings");
+            System.out.println("6. Checkout");
+            System.out.println("7. Cancel Booking");
+            System.out.println("0. Exit");
+            System.out.print("Enter choice: ");
+
+            int choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+                    System.out.print("Enter ID: ");
+                    int id = sc.nextInt();
+                    sc.nextLine();
+                    System.out.print("Enter Name: ");
+                    String name = sc.nextLine();
+                    hotel.addGuest(id, name);
+                    break;
+
+                case 2:
+                    hotel.showGuests();
+                    break;
+
+                case 3:
+                    hotel.showRooms();
+                    break;
+
+                case 4:
+                    System.out.print("Guest ID: ");
+                    int gid = sc.nextInt();
+                    System.out.print("Room No: ");
+                    int rno = sc.nextInt();
+                    System.out.print("Days: ");
+                    int days = sc.nextInt();
+                    hotel.bookRoom(gid, rno, days);
+                    break;
+
+                case 5:
+                    hotel.showBookings();
+                    break;
+
+                case 6:
+                    System.out.print("Booking ID: ");
+                    int bid = sc.nextInt();
+                    hotel.checkout(bid);
+                    break;
+
+                case 7:
+                    System.out.print("Booking ID: ");
+                    int cid = sc.nextInt();
+                    hotel.cancelBooking(cid);
+                    break;
+
+                case 0:
+                    System.out.println("🙏 Thank You!");
+                    return;
+
+                default:
+                    System.out.println("❌ Invalid choice!");
+            }
+        }
+    }
+}
